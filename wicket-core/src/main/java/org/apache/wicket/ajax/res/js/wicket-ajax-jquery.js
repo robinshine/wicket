@@ -336,6 +336,58 @@
 	Wicket.ChannelManager.FunctionsExecuter = FunctionsExecuter;
 
 	/**
+	 * Channel manager maintains a map of channels.
+	 */
+	Wicket.AjaxRequestMonitor = Wicket.Class.create();
+
+	Wicket.AjaxRequestMonitor.prototype = {
+		initialize: function () {
+			this.requests = [];
+		},
+
+		init: function() {
+			var requests = this.requests;
+			Wicket.Event.subscribe('/ajax/call/beforeSend',
+				function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
+					requests [attributes.ch] = jqXHR;
+				}
+			);
+
+			Wicket.Event.subscribe('/ajax/call/complete',
+				function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
+					delete requests[attributes.ch];
+				}
+			);
+		},
+
+		getReuest: function (channel) {
+			var channelName = channel;
+			// (ajax channel)
+			if (typeof (channelName) !== 'string') {
+				channelName = '0|s';
+			}
+			return this.requests[channelName];
+
+		},
+
+		abortRequest: function (channel) {
+			var channelName = channel;
+			// (ajax channel)
+			if (typeof(channelName) !== 'string') {
+				channelName = '0|s';
+			}
+			var jqXHR = getReuest(channelName);
+			if (jqXHR) {
+				try {
+					jqXHR.abort();
+				} catch (exception) {
+					Wicket.Log.error("Couldn't abort current AJAX request:", exception);
+				}
+			}
+		}
+	};
+
+	/**
 	 * The Ajax.Request class encapsulates a XmlHttpRequest.
 	 */
 	Wicket.Ajax = {};
