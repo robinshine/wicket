@@ -336,7 +336,8 @@
 	Wicket.ChannelManager.FunctionsExecuter = FunctionsExecuter;
 
 	/**
-	 * Channel manager maintains a map of channels.
+	 * AjaxRequestMonitor allows to get hold of jqXHR during AJAX request and
+	 * manipulate it.
 	 */
 	Wicket.AjaxRequestMonitor = Wicket.Class.create();
 
@@ -360,7 +361,7 @@
 			);
 		},
 
-		getReuest: function (channel) {
+		getRequest: function (channel) {
 			var channelName = channel;
 			// (ajax channel)
 			if (typeof (channelName) !== 'string') {
@@ -371,12 +372,7 @@
 		},
 
 		abortRequest: function (channel) {
-			var channelName = channel;
-			// (ajax channel)
-			if (typeof(channelName) !== 'string') {
-				channelName = '0|s';
-			}
-			var jqXHR = getReuest(channelName);
+			var jqXHR = this.getRequest(channel);
 			if (jqXHR) {
 				try {
 					jqXHR.abort();
